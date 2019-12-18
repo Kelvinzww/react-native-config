@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -21,9 +23,20 @@ def getCurrentFlavor() {
     return flavor
 }
 
-def loadDotEnv(flavor = getCurrentFlavor()) {
-    def envFile = ".env"
+def loadDefaultEnv() {
+    def env = [:]
+    if (project.hasProperty("envConfigFiles")) {
+        def defaultFile = project.ext.envConfigFiles.get("default")
+        if (defaultFile) {
+            env = readConfig(defaultFile)
+        }
+    }
+    return env
+}
 
+def loadDotEnv(flavor = getCurrentFlavor()) {
+    def env = loadDefaultEnv()
+    def envFile = ".env"
     if (System.env['ENVFILE']) {
         envFile = System.env['ENVFILE']
     } else if (System.getProperty('ENVFILE')) {
@@ -39,13 +52,15 @@ def loadDotEnv(flavor = getCurrentFlavor()) {
     } else if (project.hasProperty("defaultEnvFile")) {
         envFile = project.defaultEnvFile
     }
+   println("Reading env from: $envFile")
+    env = readConfig(envFile, env)
+    project.ext.set("env", env)
+}
 
-    def env = [:]
-    println("Reading env from: $envFile")
-
-    File f = new File("$project.rootDir/../$envFile");
+def readConfig(envFile, env = [:]) {
+    File f = new File("$project.rootDir/../$envFile")
     if (!f.exists()) {
-        f = new File("$envFile");
+        f = new File("$envFile")
     }
 
     if (f.exists()) {
@@ -60,8 +75,7 @@ def loadDotEnv(flavor = getCurrentFlavor()) {
         println("*** Missing .env file ****")
         println("**************************")
     }
-
-    project.ext.set("env", env)
+    return env
 }
 
 loadDotEnv()
