@@ -36,6 +36,15 @@ public class ReactNativeConfigModule extends ReactContextBaseJavaModule {
       } catch (Resources.NotFoundException e) {
         className = getReactApplicationContext().getApplicationContext().getPackageName();
       }
+      // because of BuildConfig is not in applicationId's directory when use productFlavors cause  in rn0.60+
+      boolean isExist = new File(className + ".BuildConfig").exists();
+      if(!isExist){
+      //TODO  
+      //for the most part , we add dot into ending; such as xx.dev xx.test
+      //so we get default applicationId  temporarily like this
+        className = className.substring(0, className.lastIndexOf("."));
+      }
+
       Class clazz = Class.forName(className + ".BuildConfig");
       Field[] fields = clazz.getDeclaredFields();
       for(Field f: fields) {
