@@ -12,6 +12,7 @@ import java.lang.IllegalAccessException;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.File;
 
 public class ReactNativeConfigModule extends ReactContextBaseJavaModule {
   public ReactNativeConfigModule(ReactApplicationContext reactContext) {
@@ -36,7 +37,7 @@ public class ReactNativeConfigModule extends ReactContextBaseJavaModule {
       } catch (Resources.NotFoundException e) {
         className = getReactApplicationContext().getApplicationContext().getPackageName();
       }
-      // because of BuildConfig is not in applicationId's directory when use productFlavors cause  in rn0.60+
+      // because of BuildConfig is not in applicationId's directory when use productFlavors in rn0.60+
       boolean isExist = new File(className + ".BuildConfig").exists();
       if(!isExist){
       //TODO  
